@@ -1,0 +1,9 @@
+__pycache__
+results
+tmp
+data/embeddings
+data/texts
+.idea
+*.swp
+NNTargetedSentiment
+*.pyc
