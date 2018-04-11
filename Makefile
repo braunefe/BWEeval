@@ -1,4 +1,4 @@
-PYTHON = $(HOME)/.anaconda/envs/fabienne/bin/python
+PYTHON = python
 BASH = bash -c
 
 DIR_RESULTS = ./results
