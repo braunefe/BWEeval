@@ -1,3 +1,4 @@
+# modify variable below if using virtual environments
 PYTHON = python
 BASH = bash -c
 
@@ -30,7 +31,10 @@ LEXICON_TEST_NEWS = $(DIR_LEXICONS)/EvalDict.NEWS.txt
 LEXICON_TEST_HIML = $(DIR_LEXICONS)/EvalDict.HIML.txt
 LEXICON_TEST_RAREHIML = $(DIR_LEXICONS)/EvalDict.RAREHIML.txt
 
+# negative examples for maxmarg
 NUM_NEGATIVES = 2000
+
+# value for the margin (*0.1)
 NUM_MARG_GENERAL_SKIP = 8
 NUM_MARG_GENERAL_CBOW = 8
 NUM_MARG_GENERAL_FTSKIP = 13
@@ -90,6 +94,7 @@ endef
 ############################################################################
 ############################################################################
 
+# default target when running make
 all: sep1 results_ridge sep2 results_maxmarg sep3 results_edit_alone sep4 results_ensemble_ridge sep5 results_ensemble_maxmarg sep6 results_ensemble_edit_ridge sep7 results_ensemble_edit_maxmarg sep8
 
 sep%:
@@ -99,7 +104,7 @@ sep%:
 .SECONDARY:
 
 ############################################################################
-############################################################################
+####################### DATA ###############################################
 
 $(DIR_DATA)/data.zip:
 	wget $(URL_DATA) -O $@
@@ -109,10 +114,11 @@ $(DIR_DATA)/data.zip:
 # to download data
 get_data: $(DIR_DATA)/data.zip
 
-$(DIR_TEXTS)/% DIR_EMBEDDINGS/%: $(DIR_DATA)/data.zip
+$(DIR_TEXTS)/% $(DIR_EMBEDDINGS)/%: $(DIR_DATA)/data.zip
+	@echo ""
 
 ############################################################################
-############################################################################
+######################## RIDGE MAPPING #####################################
 
 define run_ridge_bwe_mapping
 	mkdir -p $(dir $(1))
@@ -128,7 +134,7 @@ $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.%.en-de: $(LEXICON_TRAIN_MEDICAL) $(DIR_E
 ridge_mappings: $(DIR_RESULTS_RIDGE)/mappedBWE.General.skip.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.General.cbow.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.General.ftskip.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.General.ftcbow.en-de \
 			    $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.skip.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.cbow.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.ftskip.en-de $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.ftcbow.en-de
 
-############################################################################
+#################### INDUCING WORDS ##########################################
 
 define run_ridge_compute_most_sim
 	mkdir -p $(dir $(1))tmp
@@ -150,7 +156,7 @@ $(DIR_RESULTS_RIDGE)/minedOOV.Himl.%.txt:  $(LEXICON_TEST_HIML) $(DIR_RESULTS_RI
 $(DIR_RESULTS_RIDGE)/minedOOV.RareHiml.%.txt: $(LEXICON_TEST_RAREHIML) $(DIR_RESULTS_RIDGE)/mappedBWE.Medical.%.en-de $(DIR_EMBEDDINGS_MEDICAL)/embeddings.%.de
 	$(call run_ridge_compute_most_sim,$@,$(word 1,$^),$(word 2,$^),$(word 3,$^),5)
 
-############################################################################
+#################### EVALUATION ##################################################
 
 
 define run_eval
@@ -176,7 +182,7 @@ $(DIR_RESULTS_RIDGE)/results.Himl.%.1BEST.txt.result: $(LEXICON_TEST_HIML) $(DIR
 $(DIR_RESULTS_RIDGE)/results.RareHiml.%.1BEST.txt.result: $(LEXICON_TEST_RAREHIML) $(DIR_RESULTS_RIDGE)/minedOOV.RareHiml.%.txt
 	$(call run_eval,$(subst .1BEST.txt.result,,$@),$(word 1,$^),$(word 2,$^))
 
-############################################################################
+##################### PRINT RESULTS ################################################
 
 define print_result
 @ echo "$(2): $(subst results.,,$(notdir $(1))): `cut -d ',' -f 1 $(1).1BEST.txt.result` (`cut -d ',' -f 1 $(1).NBEST.txt.result`)"
@@ -193,8 +199,9 @@ results_ridge: results_ridge_General.skip results_ridge_General.cbow results_rid
 
 
 ############################################################################
-############################################################################
+###################### MAXMARG MAPPING #####################################
 
+# Generating negative examples
 define create_triplets_singlesource
 	mkdir -p $(dir $(1))
 	$(PYTHON) ${DIR_SCRIPTS_MAXMARG}/createTripletsSingleSource.py $(3) $(2) $(1) $(1).source $(1).target $(4)
@@ -206,7 +213,7 @@ $(DIR_RESULTS_MAXMARG_TRIPLETS)/general_triplets_singlesource.%.txt: $(LEXICON_T
 $(DIR_RESULTS_MAXMARG_TRIPLETS)/medical_triplets_singlesource.%.txt: $(LEXICON_TRAIN_MEDICAL) $(DIR_TEXTS)/medical.de
 	$(call create_triplets_singlesource,$@,$(word 1,$^),$(word 2,$^),$*)
 
-############################################################################
+####################### RUN MUXMARG ###########################################
 
 define run_maxmarg
 	mkdir -p $(dir $(1))
@@ -339,7 +346,7 @@ M = $(NUM_MARG_RAREHIML_FTCBOW)
 $(DIR_RESULTS_MAXMARG_PROJECTIONS)/medical.$(METHOD).$(N).$(M).projection: $(DIR_RESULTS_MAXMARG_TRIPLETS)/medical_triplets_singlesource.$(N).txt  $(DIR_EMBEDDINGS_MEDICAL)/embeddings.$(METHOD).en $(DIR_EMBEDDINGS_MEDICAL)/embeddings.$(METHOD).de
 	$(call run_maxmarg,$@,$(word 1,$^),$(word 2,$^),$(word 3,$^),$(call split_dot,$@,4))
 
-############################################################################
+##################### INDUCING WORDS ###############################################
 
 define run_maxmarg_compute_most_sim
 	mkdir -p $(dir $(1))/tmp
@@ -434,7 +441,7 @@ METHOD = ftcbow
 $(DIR_RESULTS_MAXMARG)/minedOOV.RareHiml.$(METHOD).%.txt: $(LEXICON_TEST_RAREHIML) $(DIR_EMBEDDINGS_MEDICAL)/embeddings.$(METHOD).de $(DIR_RESULTS_MAXMARG_PROJECTIONS)/medical.$(METHOD).%.projection
 	$(call run_maxmarg_compute_most_sim,$@,$(word 1,$^),$(word 2,$^),$(word 3,$^))
 
-############################################################################
+########################### EVALUATION ####################################
 
 $(DIR_RESULTS_MAXMARG)/results.General.%.1BEST.txt.result: $(LEXICON_TEST_GENERAL) $(DIR_RESULTS_MAXMARG)/minedOOV.General.%.txt
 	$(call run_eval,$(subst .1BEST.txt.result,,$@),$(word 1,$^),$(word 2,$^))
@@ -451,7 +458,7 @@ $(DIR_RESULTS_MAXMARG)/results.Himl.%.1BEST.txt.result: $(LEXICON_TEST_HIML) $(D
 $(DIR_RESULTS_MAXMARG)/results.RareHiml.%.1BEST.txt.result: $(LEXICON_TEST_RAREHIML) $(DIR_RESULTS_MAXMARG)/minedOOV.RareHiml.%.txt
 	$(call run_eval,$(subst .1BEST.txt.result,,$@),$(word 1,$^),$(word 2,$^))
 
-############################################################################
+########################## PRINT RESULTS ####################################
 
 results_maxmarg_%: $(DIR_RESULTS_MAXMARG)/results.%.1BEST.txt.result
 	$(call print_result,$(subst .1BEST.txt.result,,$(word 1,$^)),MAXMARG)
