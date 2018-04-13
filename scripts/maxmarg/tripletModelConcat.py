@@ -1,9 +1,6 @@
 from __future__ import print_function
 
-#give theano flags
-#specify gpu
-
-import pandas as pd #handle data and data tables
+import pandas as pd
 import numpy as np
 import logging
 import sys
@@ -62,7 +59,7 @@ class MaxMargin():
         #normalize vectors to compute cosine distance with dot product
         source_norm = K.l2_normalize(source,axis=1)
         positive_norm = K.l2_normalize(positive,axis=1)
-    
+
         #transform cosine similarity into distance
         pos = np.arccos(K.dot(source_norm,K.transpose(positive_norm)))
     
@@ -101,10 +98,8 @@ def load_model(name):
 def load_triplets(train, target, nbneg, test=0.25, maxlen=None):
     
     logging.info('Loading triplets...')
-    #print("NEG {}".format(nbneg))
     
     trd = pd.read_csv(train,header=None,names=['s', 'l', 'n'],quoting=3)
-    #sv = pd.read_csv(source_voc,header=None,names=['s'])
     tv = pd.read_csv(target,header=None,names=['t'],quoting=3)
     trd.s=trd.s.astype(str)
     trd.l=trd.l.astype(str)
@@ -134,70 +129,17 @@ def load_triplets(train, target, nbneg, test=0.25, maxlen=None):
     nb_sw = len(s.word_index.items()) + 1
     seq_len = len(tn_seqs[0])
 
-
-
-    #TODO: CREATE NEW DATA FRAME AND PUT TEXT SEQUENCES IN THERE
-    #for src in trd.iterrows():
-    #    so = src[1].s.lower().split()
-    #            tg1 = src[1].l.lower().split()
-    #    tg2 = src[1].n.lower().split()
-    #            if len(so) != len(tg1) != len(tg2):
-    #                    print("WARNING INPUT MATRICES HAVE DIFFERENT SIZES")
-    #            j=0
-    #            sourceInd = []
-    #            positiveInd = []
-    #            negativeInd = []
-    #            while j < len(so):
-    #                    s_index = s.word_index[so[j]]
-    #                    sourceInd.append(s_index)
-    #                    l_index = t.word_index[tg1[j]]
-    #                    positiveInd.append(l_index)
-    #                    n_index = t.word_index[tg2[j]]
-    #                    negativeInd.append(n_index)
-    #                    j=j+1
-    #            source.append(sourceInd)
-    #            positive.append(positiveInd)
-    #            negative.append(negativeInd)
-                #marg.append(margin)        
-
-
-    #trd['margin'] = pd.Series(marg).values
-    #trd['stext'] = pd.Series(source_text).values
-    #trd['ttext'] = pd.Series(target_text).values
-
-    #print("Values {}".format(trd.margin))
-
     if type(test) == float:
         ted = trd.tail(n=int(float(trd.shape[0])*test))
         trd = trd[~trd.index.isin(ted.index)]
     else: #TODO IF TEST IS GIVEN AS ARGUMENT
         ted = pd.read_csv(test)
     
-    #TODO IF TEST IS GIVEN AS ARGUMENT: CREATE TED
-    #s.fit_on_texts(ted.s)    
-
     return trd, ted, s, t, nb_sw, nb_tw, seq_len
-
-#We assume that we give k negative examples to the model in advance
-#def max_marg_ranking(X):
-#    distancePos,distanceNeg,m= X
-    #z = np.zeros(distanceNeg.shape
-#        loss = K.sum(K.maximum(0,m+distancePos-distanceNeg))
-    #loss = K.maximum(0.0,m+0*distancePos+0*distanceNeg)
-#    return loss
 
 #Identity loss for a batch
 def identity_loss(y_true, y_pred):   
     return K.abs(K.sum(y_pred - 0 * y_true))
-
-#def max_marg_ranking(noise,nb_neg,margin):
-#    def loss(y_true, y_pred):
-#        loss = 0
-#        while nb_neg != 0:
-#            rand = np.randint(0,len(noise)-1,k)
-#            for i in rand:
-#                loss = loss + np.maximum(0,(margin - np.arccos(prediction_item,positive_item) - np.arccos(prediction_item,noise(i))))
-#        return loss
 
 def build_model(nb_source_words, nb_target_words, embedding_dim=300, embedding_dropout=0.0, static_embedding=True, source_tokenizer=None, target_tokenizer=None,
                  source_w2v=None,target_w2v=None,nb_neg=None,margin=1.0):
@@ -229,8 +171,6 @@ def build_model(nb_source_words, nb_target_words, embedding_dim=300, embedding_d
     positive_item = Input(shape=(1,))
     negative_items = Input(shape=(nb_neg,))
 
-    #print('positive item {}'.format(source_item))
-    #print('negative item {}'.format(positive_item))
 
     #branch dealing with source words
     #monolingual semantic embedding
@@ -253,8 +193,6 @@ def build_model(nb_source_words, nb_target_words, embedding_dim=300, embedding_d
 
     merged = Merge(mode=MaxMargin(nb_neg, margin).__call__, output_shape=(1,))([source,positive,negative_item_embedding])
 
-
-
     model = Model(
             input=[source_item, positive_item, negative_items],output=merged)
     model.compile(loss=identity_loss, optimizer='adagrad')
@@ -276,21 +214,15 @@ if __name__ == '__main__':
     # Read data
     train, test, stok, ttok, nb_s, nb_t, sl = load_triplets(options.train, options.target, options.nbneg, test=0.25, maxlen=None)
     
-    #print ("TYPE SEQ {}".format(type(so_seqs[0][0])))
-    #print("NUMPY SEQ {}".format((np.asarray(train.source))))
 
     #Replace each word by its index
     train_s = np.asarray(train.source.tolist())
     train_p = np.asarray(train.positive.tolist())
     train_n = np.zeros((train.negative.shape[0], sl))
-    #for i,a in enumerate(train.negative.tolist()):
-        #print(i, np.array(a).shape)
-        #train_n[i] = np.array(a)
     train_n = np.array(train.negative.tolist())
     test_s = np.asarray(test.source.tolist())
     test_p = np.asarray(test.positive.tolist())
     test_n = np.asarray(test.negative.tolist())
-    #train_m = np.reshape(train.margin, (1,) + train.margin.shape)
 
     print(train_s.shape)
     print(train_p.shape)
@@ -299,20 +231,6 @@ if __name__ == '__main__':
     print(test_p.shape)
     print(test_n.shape)
 
-    #print("Type and Shape {} {}".format(type(train_s),np.shape(train_s)))
-    #print(train_s)
-	    #Replace each word by its index
-
-
-
-    #test_m = np.reshape(test.margin, (1,) + test.margin.shape)
-
-    #print('number source words {}'.format(nb_s))
-    #print('training data {} {} {}'.format(np.shape(train_s),np.shape(train_p),np.shape(train_n)))
-    #print('encoding {}'.format(train_s.dtype))
-
-    #print('test data {}'.format(test.to_string))
-    #print('test header {}'.format(test.head()))
 
     # Load w2v models
     # Load source word embedding space
@@ -347,26 +265,17 @@ if __name__ == '__main__':
     # Print the model structure
     print(model.summary())
 
-    #for epoch in range(num_epochs):
-
-        #print('Epoch %s' % epoch)
-
     logging.info('Training...')
     
-    #earlyStopping=EarlyStopping(monitor='val_loss', patience=5, verbose=0, mode='auto')
-
-	#manual early stopping
+    #manual early stopping
     p=10
     patience=[]
     prevLoss=100000
     for i in range(1,options.epoch):
     	model.fit([train_s,train_p,train_n],
-    	#train.s.tolist(),train.l.tolist(),train.n.tolist()],
     	np.zeros(len(train_s)),
-    	#callbacks=[earlyStopping],
     	batch_size=options.batch,
     	nb_epoch=1,
-    	#validation_data=[test_s,test_p,test_n]
     	verbose=1,
     	shuffle=True)
     	testLoss = model.evaluate([test_s,test_p,test_n],np.zeros(len(test_s)),batch_size=options.batch)
@@ -391,32 +300,5 @@ if __name__ == '__main__':
             fout.write('{} {}\n'.format(len(sw2v.vocab), tw2v.vector_size)) #We assume that we project into a space of the same dimension
             for w in sw2v.vocab:
                 vec=sw2v[w]
-                #print("Shape vec {}.".format(vec.shape))
                 vec=np.reshape(vec, (1,1,300))
-                #print("ReShape vec {}.".format(vec.shape))
-                #print("Prediction for {} : {}".format(w,mapping.predict([vec])))
                 fout.write('{} {}\n'.format(w, ' '.join([str(v) for v in mapping.predict([vec])[0][0]])))
-
-    
-
-    #save and load model
-    #save_model(model,options.output)
-    #load_model(options.output)
- 
-    # later...
- 
-
- 
-    # evaluate loaded model on test data
-    #loaded_model.compile(loss='binary_crossentropy', optimizer='adagrad', metrics=['accuracy'])
-    #score = loaded_model.evaluate(X, Y, verbose=0)
-    #print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
-
-    #model.saveWeights()
-
-    
-    #print(history.History)
-        
-    #logging.info('Evaluating...')
-    #score = model.evaluate([train.s.tolist(),train.l.tolist(),train.n.tolist()], np.zeros(len(train.l.tolist())).tolist(), batch_size=options.batch, verbose=1)
-    #logging.info('Test accuracy: {}'.format(score[1]))

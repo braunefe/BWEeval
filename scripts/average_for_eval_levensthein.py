@@ -93,7 +93,6 @@ def print_eval(t):
 options=get_options()
 
 
-#! hyperparams are hard-coded
 print("h1,h2,h3,h4,e,1-best,n-best,all") #print header of csv file
 r = average_n_distances(options.params,options.edit,options.my_dists,options.eval)
 print_eval(r)#pass number of hyperparameters

@@ -40,21 +40,16 @@ if __name__ == '__main__':
 	pairs = line.split()
 	d[pairs[0].strip()]=pairs[1].strip()
 
-    #print "DICTIONARY DONE"
 
     for line in nbest:
 	fields = line.split("|||")
-	#print "FIELDS {} {}".format(fields[0],fields[1])
 	source = fields[0].strip()
-	#print "SOURCE: {} {}".format(source,len(fields))		
         if source in d:
-		#print "SOURCE: {} {}".format(source,len(fields))		
 		i = 1
 		found = 0
 		# check if first item in ranked list is the correct target
 		if len(fields) > 1:
 			targets1 = fields[1].split();
-			#print "TARGET 1 {}".format(targets1)
 			if len(targets1) > 0:				
 				target1 = targets1[0].strip()
 				if d[source] == target1: # check if right target is first best
@@ -68,7 +63,6 @@ if __name__ == '__main__':
 		while i < len(fields):
 			targets = fields[i].split()
 			if len(targets) > 0:
-				#print " TARGET: {}\n".format(targets[0].strip())
 				target = targets[0].strip()
 				if d[source] == target:
 					out1.write('{} {} 1 {}\n'.format(source,target,i))
@@ -77,10 +71,3 @@ if __name__ == '__main__':
 		if found == 0:
 			out1.write('{} {} 0 {}\n'.format(source,target,d[source]))
 			
-
-	#else:
-		#out1.write('{} not in nbest\n'.format(source))
-
-    
-	
-

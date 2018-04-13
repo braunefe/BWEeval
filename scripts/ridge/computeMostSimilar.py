@@ -57,9 +57,3 @@ if __name__ == '__main__':
             a = i[0].encode('utf-8')
             out1.write('{} {} |||'.format(a,i[1]))
         out1.write('\n')						
-
-    
-	
-		
-	
-

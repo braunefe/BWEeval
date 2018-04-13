@@ -18,15 +18,13 @@ unigramList=[]
 listSize=300000000
 
 allFreqs=0.0
-for w in c: #table containing 300000 most frequent with frequencies                                                                                                           
+for w in c: #table containing 300000 most frequent with frequencies
         allFreqs=allFreqs+w[1]
 
 probas=dict()
 for w in c:
         i=0
-        #j=round(w[1]/float(allFreqs))*listSize                                                                                                                                
         j= w[1]/float(allFreqs) * float(listSize)
-        #print("J is {} for {}".format(j,w[0]))                                                                                                                                
         while i < j:
                 unigramList.append(w[0])
                 i=i+1
@@ -46,11 +44,6 @@ out5 = open(filename5,'w')
 
 amount_negatives = int(sys.argv[6])
 print("Amount Negatives {}".format(amount_negatives))
-
-#create headers in output files
-#out3.write("s,l,n\n")
-#out4.write("s\n")
-#out5.write("t\n")
 
 #put elements of seed lexicon into dictionary
 d={}
@@ -72,26 +65,21 @@ for key,value in d.iteritems():
                 drawnNegatives = set()
                 i=0
 		while i < amount_negatives:
-			#print ("I {}, NEG {}".format(i,amount_negatives))
 			neg=random.choice(unigramList)
                         while neg in drawnNegatives:
                                 neg=random.choice(unigramList)
 			if neg != value and neg != "," and "," not in neg: #select negative (value is positive instance)
                                 targetTypes.add(value)
-                                #targetPositives.append(value)
 				targetTypes.add(neg)
                                 targetNegatives.append(neg)
                                 drawnNegatives.add(neg)
 				sourceTypes.add(key)
-                                #sourceWords.append(key)
-                                #out3.write("{},{},{}\n".format(key,value,neg)
                                 i=i+1
                 so = key
                 tp = value
                 tn = " ".join(targetNegatives)
                 drawnNegatives.clear()
                 out3.write("{},{},{}\n".format(so,tp,tn))
-                #print("LENGTH OF NEGATIVES: {}".format(len(targetNegatives)))
 
 for s in sourceTypes:
 	out4.write("{}\n".format(s.strip()))
@@ -102,6 +90,4 @@ for t in targetTypes:
 file2.close()
 out3.close()
 out4.close()
-out5.close()		
-
-
+out5.close()

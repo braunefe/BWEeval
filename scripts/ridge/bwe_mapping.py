@@ -1,6 +1,3 @@
-##!/usr/bin/env python
-#V2w saved in text vectors -> output of w2v script
-
 import logging
 from gensim.models import Word2Vec
 import pandas as pd
@@ -61,7 +58,3 @@ if __name__ == '__main__':
             fout.write('{} {}\n'.format(len(fw2v.vocab), tw2v.vector_size))
             for w in fw2v.vocab:
                 fout.write('{} {}\n'.format(w, ' '.join([str(v) for v in model.predict([fw2v[w]])[0]])))
-
-#first line: says how many words -> if delete words then change this also
-#-> if manual changes or concatenate some w2v
-#each line has word and vector -> tab separated

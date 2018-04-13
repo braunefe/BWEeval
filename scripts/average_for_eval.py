@@ -29,7 +29,6 @@ def load_valid(validFile):
 
     for line in valid: #pairs in valid lexicon
     	pairs = line.split()
-    	#print pairs
     	d[pairs[0].strip()]=pairs[1].strip()
     
     return d
@@ -77,7 +76,6 @@ def average_n_distances(hyperparams,distFiles,validFile): #average distances for
     			correctN = correctN+1
 	allWords=allWords+1
 
-    #return number
     o=(correctFirst,correctN,allWords)
     return o
 
@@ -87,7 +85,6 @@ def print_eval(t):
 
 options=get_options()
 
-#! hyperparams are hard-coded
 print("h1,h2,h3,h4,1-best,n-best,all") #print header of csv file
 print options.params
 r = average_n_distances(options.params,options.my_dists,options.eval)
