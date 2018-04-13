@@ -1,10 +1,27 @@
 ### Evaluating bilingual word embeddings on the long tail
 
-TODO
+Bilingual word embeddings are useful for bilingual lexicon induction,
+the task of mining translations of given words. Many studies have
+shown that bilingual word embeddings perform well for bilingual
+lexicon induction but they focused on frequent words in general
+domains. For many applications, bilingual lexicon induction of rare
+and domain-specific words is of critical importance. Therefore, we
+design a new task to evaluate bilingual word embeddings on rare words
+in different domains. We show that state-of-the-art approaches fail on
+this task and present simple new techniques to improve bilingual word
+embeddings for mining rare words. We release new gold standard datasets
+and code to stimulate research on this task.
 
 #### Data
 
-TODO
+* data/lexicon
+	* train\* are the lexicons for training post-hoc mapping
+	* validation\*/EvalDict\* are the validation/test sets
+	* *(we call HIML the medical datasets)*
+* external data
+	* run *make get_data* to download data only ([link](http://cis.uni-muenchen.de/~hangyav/data/rareword_mining.zip))
+	* data/embeddings: pretrained embeddings
+	* data/texts: raw texts used for the experiments
 
 #### Requirements
 
@@ -18,10 +35,10 @@ TODO
 #### Run
 
 * To reproduce the numbers in the paper run __make__
-	* run make again to print the table
 	* use -j n to run on n threads
 	* use DEVICE=gpu to run maxmarg on GPU
 	* runtime on cpu with 4 threads around 1 day
+	* run make again to print the table with results
 
 ```
 	make -j 4 DEVICE=cpu
