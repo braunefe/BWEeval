@@ -51,16 +51,16 @@ and code to stimulate research on this task.
 
 ```
 @InProceedings{N18-2030,
-  author = 		"Braune, Fabienne
-				and Hangya, Viktor
-				and Eder, Tobias
-				and Fraser, Alexander",
-  title = 		"Evaluating bilingual word embeddings on the long tail",
+  author = 	"Braune, Fabienne
+		and Hangya, Viktor
+		and Eder, Tobias
+		and Fraser, Alexander",
+  title = 	"Evaluating bilingual word embeddings on the long tail",
   booktitle = 	"Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 2 (Short Papers)",
-  year = 		"2018",
+  year = 	"2018",
   publisher = 	"Association for Computational Linguistics",
-  pages = 		"188--193",
+  pages = 	"188--193",
   location = 	"New Orleans, Louisiana",
-  url = 		"http://aclweb.org/anthology/N18-2030"
+  url = 	"http://aclweb.org/anthology/N18-2030"
 }
 ```
