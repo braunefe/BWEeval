@@ -27,6 +27,7 @@ and code to stimulate research on this task.
 
 * Python 2.7
 * dependencies in requirements.txt
+* Keras has to be configured to use Theano as backend
 
 ```sh
 	pip install -r requirements.txt
