@@ -1,5 +1,6 @@
 # modify variable below if using virtual environments
-PYTHON = python
+PYTHON_PATH = python
+PYTHON = KERAS_BACKEND=theano $(PYTHON_PATH)
 BASH = bash -c
 
 DIR_RESULTS = ./results
@@ -213,7 +214,7 @@ $(DIR_RESULTS_MAXMARG_TRIPLETS)/general_triplets_singlesource.%.txt: $(LEXICON_T
 $(DIR_RESULTS_MAXMARG_TRIPLETS)/medical_triplets_singlesource.%.txt: $(LEXICON_TRAIN_MEDICAL) $(DIR_TEXTS)/medical.de
 	$(call create_triplets_singlesource,$@,$(word 1,$^),$(word 2,$^),$*)
 
-####################### RUN MUXMARG ###########################################
+####################### RUN MAXMARG ###########################################
 
 define run_maxmarg
 	mkdir -p $(dir $(1))

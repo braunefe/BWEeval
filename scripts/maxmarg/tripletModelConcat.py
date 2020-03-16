@@ -152,7 +152,7 @@ def build_model(nb_source_words, nb_target_words, embedding_dim=300, embedding_d
         source_embedding_weights = np.zeros((nb_source_words, embedding_dim))
         for w,i in source_tokenizer.word_index.items(): #word-index pairs in tokenizer
             #print('word index {} {}'.format(w,i))
-            if type(source_w2v) == fasttext.model.WordVectorModel or w in source_w2v: #ask Vitkor
+            if w in source_w2v or type(source_w2v) != Word2Vec:
                 source_embedding_weights[i, :] = source_w2v[w]
             else:
                 source_embedding_weights[i, :] = np.random.uniform(-0.25, 0.25, embedding_dim)
@@ -161,7 +161,7 @@ def build_model(nb_source_words, nb_target_words, embedding_dim=300, embedding_d
     if target_tokenizer and type(dict()) == dict:
         target_embedding_weights = np.zeros((nb_target_words, embedding_dim))
         for w,i in target_tokenizer.word_index.items(): #word-index pairs in tokenizer
-            if type(target_w2v) == fasttext.model.WordVectorModel or w in target_w2v: #ask Vitkor
+            if w in target_w2v or type(target_w2v) != Word2Vec:
                 target_embedding_weights[i, :] = target_w2v[w]
             else:
                 target_embedding_weights[i, :] = np.random.uniform(-0.25, 0.25, embedding_dim)
