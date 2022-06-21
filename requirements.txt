@@ -1,7 +1,7 @@
 fasttext==0.9.1
 gensim==0.13.4.1
 Keras==1.2.2
-numpy==1.14.0
+numpy==1.22.0
 pandas==0.22.0
 scikit-learn==0.17
 scipy==1.0.0
